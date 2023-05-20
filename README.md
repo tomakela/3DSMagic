@@ -47,6 +47,8 @@ for node in nodes:
 
 for node in nodes:
 	node.GetDisplayNode().SetVisibility(True)
+	view.resetFocalPoint()
+	#view.resetCamera()
 	view.forceRender()
 	cap.captureImageFromView(view, outdir+node.GetName()+'.png')
 	node.GetDisplayNode().SetVisibility(False)
