@@ -27,3 +27,27 @@ exportFolderItemId = shNode.CreateFolderItem(shNode.GetSceneItemID(), "PAT")
 #convert all segments to models
 slicer.modules.segmentations.logic().ExportSegmentsToModels(segmentationNode,segmentationNode.GetSegmentation().GetSegmentIDs(),exportFolderItemId)
 ```
+## Capture models with black background
+```
+outdir = 'D:/2023/trachea/png/';
+viewNodeID = 'vtkMRMLSliceNodeRed'
+import ScreenCapture
+cap = ScreenCapture.ScreenCaptureLogic()
+view = slicer.app.layoutManager().threeDWidget(0).threeDView()
+view.mrmlViewNode().SetBackgroundColor(0,0,0)
+view.mrmlViewNode().SetBackgroundColor2(0,0,0)
+view.mrmlViewNode().SetAxisLabelsVisible(False)
+view.mrmlViewNode().SetBoxVisible(False)
+
+
+nodes = [node for node in getNodesByClass('vtkMRMLModelNode') if "AKP" in node.GetName() or "PAT" in node.GetName()]
+for node in nodes:
+	node.GetDisplayNode().SetVisibility(False)
+	node.GetDisplayNode().SetColor(1,1,1)
+
+for node in nodes:
+	node.GetDisplayNode().SetVisibility(True)
+	view.forceRender()
+	cap.captureImageFromView(view, outdir+node.GetName()+'.png')
+	node.GetDisplayNode().SetVisibility(False)
+```
