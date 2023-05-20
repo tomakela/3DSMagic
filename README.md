@@ -1,6 +1,7 @@
 # 3DSMagic
 Random collection of 3D Slicer Magic Spells
 
+```
 ### Convert all labelmaps to models
 
 #create segmentation node
@@ -25,4 +26,4 @@ shNode = slicer.mrmlScene.GetSubjectHierarchyNode()
 exportFolderItemId = shNode.CreateFolderItem(shNode.GetSceneItemID(), "PAT")
 #convert all segments to models
 slicer.modules.segmentations.logic().ExportSegmentsToModels(segmentationNode,segmentationNode.GetSegmentation().GetSegmentIDs(),exportFolderItemId)
-
+```
