@@ -53,3 +53,41 @@ for node in nodes:
 	cap.captureImageFromView(view, outdir+node.GetName()+'.png')
 	node.GetDisplayNode().SetVisibility(False)
 ```
+
+## Assign ctrl+T to load next volume and matching labelmap
+
+```
+import glob, os
+
+niigz_indir = '/path/to/ct_datadir_niigz'
+niigzs = sorted([os.path.basename(fname).replace('.nii.gz','') for fname in glob.glob(os.path.join(niigz_indir,'*.nii.gz'))])
+label_indir = '/path/to/labeldir_niigz'
+
+tmps = []
+out_fnames = []
+
+def load():
+	global volume, label
+	for i, pat in enumerate(niigzs):
+		print(pat, i+1, 'of', len(niigzs))
+		fname = os.path.join(niigz_indir,pat+'.nii.gz')
+		label_fname = os.path.join(label_indir,pat+'-label.nii.gz')
+		if 'volume' in globals() and slicer.mrmlScene.IsNodePresent(volume):
+			slicer.mrmlScene.RemoveNode(volume)
+		if 'label' in globals() and slicer.mrmlScene.IsNodePresent(label):
+			slicer.mrmlScene.RemoveNode(label)
+
+		volume= slicer.util.loadVolume(fname)
+		label = slicer.util.loadLabelVolume(label_fname)
+		
+		layoutmanager = slicer.app.layoutManager()
+		for sliceViewName in layoutmanager.sliceViewNames():
+			sliceNode = layoutmanager.sliceWidget(sliceViewName).sliceView().mrmlSliceNode()
+			compositeNode = slicer.app.applicationLogic().GetSliceLogic(sliceNode).GetSliceCompositeNode()
+			compositeNode.SetLabelOpacity(0.6)			
+		
+		yield pat
+
+l = load()
+qt.QShortcut(qt.QKeySequence("Ctrl+T"), slicer.util.mainWindow()).activated.connect(lambda: next(l))
+```
